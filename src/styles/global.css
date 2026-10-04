@@ -1,0 +1,68 @@
+/* Typography Imports (Self-hosted variable fonts from @fontsource-variable) */
+@import '@fontsource-variable/syne';
+@import '@fontsource-variable/plus-jakarta-sans';
+@import '@fontsource-variable/jetbrains-mono';
+
+:root {
+  /* Surfaces & Backgrounds */
+  --bg-primary: #0A0A0B;              /* Deepest cinematic black */
+  --bg-secondary: #121214;            /* Elevated card background */
+  --bg-tertiary: #1A1A1E;             /* Hover state / subtle highlight surface */
+  --bg-glass: rgba(18, 18, 20, 0.75); /* Frosted glass overlay */
+
+  /* Text & Content */
+  --text-primary: #F4F4F6;            /* Crisp optical white for bold titles */
+  --text-secondary: #A0A0A8;          /* Readable neutral grey for body copy */
+  --text-muted: #5E5E68;              /* Low-emphasis metadata, subtitles, dates */
+
+  /* Borders & Dividers */
+  --border-subtle: rgba(255, 255, 255, 0.08); /* 1px crisp razor border */
+  --border-focus: rgba(255, 255, 255, 0.24);
+
+  /* Strategic Accents */
+  --accent-glow: rgba(255, 255, 255, 0.12);
+  --accent-badge: #E2E2E6;            /* Light contrast tags / pill badges */
+  --badge-text: #0A0A0B;
+
+  /* Typography Families */
+  --font-display: 'Syne Variable', 'Syne', sans-serif;
+  --font-body: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+
+  /* Spacing Tokens */
+  --space-xs: 0.5rem;   /* 8px */
+  --space-sm: 1rem;     /* 16px */
+  --space-md: 1.5rem;   /* 24px */
+  --space-lg: 3rem;     /* 48px */
+  --space-xl: 5rem;     /* 80px */
+  --space-2xl: 8rem;    /* 128px */
+
+  /* Layout */
+  --container-max: 1400px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--text-primary);
+}
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+}

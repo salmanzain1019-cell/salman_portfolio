@@ -1,0 +1,24 @@
+# Build & Dependency Outputs
+node_modules/
+dist/
+.astro/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# OS Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+# IDE & Editor Configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Large Raw Archives & Reference Assets
+raw-archive/

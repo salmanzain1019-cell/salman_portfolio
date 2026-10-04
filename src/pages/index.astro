@@ -1,0 +1,34 @@
+---
+import { getEntry } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+
+// Fetch profile data from Content Collections
+const profileEntry = await getEntry('profile', 'about');
+const profile = profileEntry?.data;
+---
+
+<Layout
+  title={`${profile?.name ?? 'Muhammed Salman'} — ${profile?.display_title ?? 'Creative Strategist & Copywriter'} | ${profile?.edition ?? '2026 Edition'}`}
+  description="Creative Strategist & Copywriter moving brands from noise to meaning through high-converting narratives and viral distribution."
+>
+  <Header />
+  <main id="main-content">
+    <Hero
+      taglinePrimary={profile?.tagline_primary}
+      taglineSecondary={profile?.tagline_secondary}
+      edition={profile?.edition}
+      displayTitle={profile?.display_title}
+      videoSrc={profile?.hero_video}
+      posterSrc={profile?.portrait_main}
+    />
+  </main>
+</Layout>
+
+<style>
+  main {
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+  }
+</style>

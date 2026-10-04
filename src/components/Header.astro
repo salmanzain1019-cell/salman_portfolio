@@ -1,0 +1,311 @@
+---
+// src/components/Header.astro
+---
+
+<header class="header-nav">
+  <div class="header-inner">
+    <!-- Brand Wordmark -->
+    <a href="#hero" class="brand-link" aria-label="Muhammed Salman Home">
+      <span class="brand-name">MUHAMMED SALMAN</span>
+    </a>
+
+    <!-- Center Availability Badge -->
+    <div class="status-badge" aria-label="Current Availability">
+      <span class="status-dot"></span>
+      <span class="status-text">AVAILABLE FOR Q4/2026</span>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="nav-links" aria-label="Main Navigation">
+      <a href="#works" class="nav-link">WORKS</a>
+      <a href="#about" class="nav-link">ABOUT</a>
+      <a href="#process" class="nav-link">PROCESS</a>
+      <a href="#proof" class="nav-link">PROOF</a>
+      <a href="#contact" class="nav-cta">LET'S TALK</a>
+    </nav>
+
+    <!-- Mobile Menu Trigger -->
+    <button
+      id="menu-toggle"
+      class="menu-toggle"
+      aria-expanded="false"
+      aria-controls="mobile-drawer"
+      aria-label="Toggle navigation menu"
+    >
+      <span class="toggle-bar"></span>
+      <span class="toggle-bar"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Drawer Overlay -->
+  <div id="mobile-drawer" class="mobile-drawer" aria-hidden="true">
+    <nav class="mobile-nav">
+      <a href="#hero" class="mobile-link" data-close>01. HOME</a>
+      <a href="#works" class="mobile-link" data-close>02. WORKS</a>
+      <a href="#about" class="mobile-link" data-close>03. ABOUT & SKILLS</a>
+      <a href="#process" class="mobile-link" data-close>04. 5-STEP PROCESS</a>
+      <a href="#proof" class="mobile-link" data-close>05. VIRAL PROOF</a>
+      <a href="#contact" class="mobile-link mobile-link-cta" data-close>06. GET IN TOUCH</a>
+    </nav>
+    <div class="mobile-footer">
+      <a href="mailto:salmanzain1019@gmail.com" class="mobile-contact-item">salmanzain1019@gmail.com</a>
+      <a href="tel:+919778354373" class="mobile-contact-item">+91 9778354373</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggleBtn = document.getElementById('menu-toggle');
+  const drawer = document.getElementById('mobile-drawer');
+  const closeLinks = drawer?.querySelectorAll('[data-close]');
+
+  function toggleMenu() {
+    const isExpanded = toggleBtn?.getAttribute('aria-expanded') === 'true';
+    toggleBtn?.setAttribute('aria-expanded', String(!isExpanded));
+    drawer?.classList.toggle('is-open', !isExpanded);
+    drawer?.setAttribute('aria-hidden', String(isExpanded));
+    document.body.style.overflow = !isExpanded ? 'hidden' : '';
+  }
+
+  toggleBtn?.addEventListener('click', toggleMenu);
+
+  closeLinks?.forEach(link => {
+    link.addEventListener('click', () => {
+      toggleBtn?.setAttribute('aria-expanded', 'false');
+      drawer?.classList.remove('is-open');
+      drawer?.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    });
+  });
+</script>
+
+<style>
+  .header-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 1.25rem 2rem;
+    pointer-events: none;
+  }
+
+  .header-inner {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 9999px;
+    pointer-events: auto;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .header-inner:hover {
+    border-color: var(--border-focus);
+  }
+
+  /* Brand */
+  .brand-link {
+    text-decoration: none;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    display: inline-flex;
+    align-items: center;
+    transition: opacity 0.2s ease;
+  }
+
+  .brand-link:hover {
+    opacity: 0.8;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  /* Nav Links */
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+  }
+
+  .nav-link {
+    font-family: var(--font-body);
+    font-size: 0.825rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--text-primary);
+  }
+
+  .nav-cta {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    background-color: var(--accent-badge);
+    color: var(--badge-text);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .nav-cta:hover {
+    background-color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  /* Mobile Toggle */
+  .menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+
+  .toggle-bar {
+    width: 22px;
+    height: 2px;
+    background-color: var(--text-primary);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Mobile Drawer */
+  .mobile-drawer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 10, 11, 0.98);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    z-index: 99;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 6rem 2rem 3rem;
+    pointer-events: auto;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .mobile-drawer.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .mobile-link {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .mobile-link:hover {
+    color: var(--text-secondary);
+    transform: translateX(8px);
+  }
+
+  .mobile-link-cta {
+    color: #ffffff;
+    font-weight: 800;
+  }
+
+  .mobile-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .mobile-contact-item {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  /* Responsive Rules */
+  @media (max-width: 900px) {
+    .status-badge {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .header-nav {
+      padding: 1rem;
+    }
+
+    .nav-links {
+      display: none;
+    }
+
+    .menu-toggle {
+      display: flex;
+    }
+
+    .mobile-drawer {
+      display: flex;
+    }
+  }
+</style>

@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Muhammed Salman — Creative Strategist & Copywriter | 2026 Edition",
+  description = "Creative Strategist & Copywriter moving brands from noise to meaning through high-converting narratives and viral distribution."
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO Meta Tags -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Muhammed Salman" />
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/assets/my_images/myimg_2.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Preload hero poster -->
+    <link rel="preload" as="image" href="/assets/my_images/myimg_2.png" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--bg-primary);
+  }
+</style>
