@@ -4,12 +4,17 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
 }
 
 const {
-  title = "Muhammed Salman — Creative Strategist & Copywriter | 2026 Edition",
-  description = "Creative Strategist & Copywriter moving brands from noise to meaning through high-converting narratives and viral distribution."
+  title = "Muhammed Salman — Creative Strategist & Copywriter",
+  description = "Digital marketer and self-taught Creative Strategist working at the intersection of ideas, design, and business objectives. Moving brands from noise to meaning.",
+  image = "/assets/og-image.jpg",
 } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const socialImageURL = new URL(image, Astro.site);
 ---
 
 <!doctype html>
@@ -18,22 +23,35 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- SEO Meta Tags -->
+    <!-- Primary Meta Tags -->
     <title>{title}</title>
+    <meta name="title" content={title} />
     <meta name="description" content={description} />
     <meta name="author" content="Muhammed Salman" />
 
-    <!-- Open Graph / Social -->
+    <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="/assets/my_images/myimg_2.png" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image" content={socialImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Muhammed Salman — Creative Strategist & Copywriter" />
 
-    <!-- Preload hero poster -->
-    <link rel="preload" as="image" href="/assets/my_images/myimg_2.png" />
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageURL} />
+
+    <!-- Preload hero poster image (critical LCP asset) -->
+    <link rel="preload" as="image" href="/assets/my_images/myimg_2.png" fetchpriority="high" />
   </head>
   <body>
     <slot />
