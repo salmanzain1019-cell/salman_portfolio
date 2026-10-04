@@ -1,0 +1,328 @@
+---
+// src/components/About.astro
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  profile?: CollectionEntry<'profile'>['data'];
+  bioHtml?: string;
+}
+
+const { profile } = Astro.props;
+
+// Copy strictly sourced from profile content and DESIGN.md
+const manifestoHeadline = "MOVING BRANDS FROM NOISE TO MEANING.";
+const manifestoTagline = profile?.tagline_primary ?? "CREATIVE BY NATURE. STRATEGIC BY MIND.";
+const personaTitle = "AM NOT JUST A COPYWRITER!";
+const skills = profile?.skills ?? [];
+const portrait = profile?.portrait_main ?? "/assets/my_images/myimg_2.png";
+const edition = profile?.edition ?? "2026 EDITION";
+---
+
+<section id="about" class="about-section" aria-label="About and Manifesto">
+  <div class="about-container">
+    <!-- Manifesto / Intro Chapter -->
+    <div class="manifesto-block">
+      <div class="section-tag" aria-hidden="true">
+        <span class="tag-number">01</span>
+        <span class="tag-divider">/</span>
+        <span class="tag-label">MANIFESTO</span>
+      </div>
+      <h2 class="manifesto-headline">{manifestoHeadline}</h2>
+      <p class="manifesto-sub">{manifestoTagline}</p>
+    </div>
+
+    <!-- Editorial Divider -->
+    <div class="editorial-divider" aria-hidden="true"></div>
+
+    <!-- Persona & Skills Split Grid -->
+    <div class="persona-grid">
+      <!-- Portrait Column -->
+      <div class="portrait-col">
+        <div class="portrait-frame">
+          <img
+            src={portrait}
+            alt="Muhammed Salman, Creative Strategist & Copywriter portrait"
+            width={2656}
+            height={1239}
+            loading="lazy"
+            class="portrait-img"
+          />
+          <div class="portrait-badge" aria-label="Edition badge">
+            <span>{edition} • CREATIVE STRATEGIST</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Narrative & Skills Column -->
+      <div class="narrative-col">
+        <div class="section-tag" aria-hidden="true">
+          <span class="tag-number">02</span>
+          <span class="tag-divider">/</span>
+          <span class="tag-label">THE PERSONA</span>
+        </div>
+
+        <h3 class="persona-headline">{personaTitle}</h3>
+
+        <div class="persona-body">
+          <p>
+            I'm a Digital marketer and self-taught Creative Strategist working at the intersection of ideas, design, and business objectives. I help brands move from noise to meaning by building clear narratives, strong visual identities, and communication strategies that actually convert.
+          </p>
+          <p>
+            I began by creating content, writing copy, and designing visuals on my own, learning how ideas turn into real work. While studying, I freelance and focus on strategy-led creatives that feel clear, relevant, and well thought out.
+          </p>
+          <p>
+            Am not just a copywriter! I'm a Content creator, Content writer, Video presenter, and Director. Proof? Swipe through my work. Nah! Just beginning.
+          </p>
+        </div>
+
+        <!-- Core Capabilities / Skills -->
+        <div class="skills-block">
+          <h4 class="skills-heading">CORE SKILL</h4>
+          <ul class="skills-list" aria-label="Core Skills">
+            {skills.map((skill) => (
+              <li class="skill-item">
+                <span class="skill-dot" aria-hidden="true"></span>
+                <span class="skill-name">{skill}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-section {
+    position: relative;
+    width: 100%;
+    padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 5vw, 4rem);
+    background-color: var(--bg-primary);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .about-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  /* Section Tag */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .tag-number {
+    color: var(--text-secondary);
+  }
+
+  .tag-divider {
+    color: var(--border-focus);
+  }
+
+  /* Manifesto Block */
+  .manifesto-block {
+    max-width: 1100px;
+  }
+
+  .manifesto-headline {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5.5vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+  }
+
+  .manifesto-sub {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 2vw, 1.35rem);
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Editorial Divider */
+  .editorial-divider {
+    width: 100%;
+    height: 1px;
+    background-color: var(--border-subtle);
+    margin: clamp(3rem, 6vw, 5rem) 0;
+  }
+
+  /* Persona Grid */
+  .persona-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+
+  /* Portrait Column */
+  .portrait-col {
+    position: relative;
+    width: 100%;
+  }
+
+  .portrait-frame {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    transition: border-color 0.3s ease;
+  }
+
+  .portrait-frame:hover {
+    border-color: var(--border-focus);
+  }
+
+  .portrait-img {
+    width: 100%;
+    height: auto;
+    max-height: 600px;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    filter: grayscale(20%) contrast(1.05);
+    transition: filter 0.4s ease, transform 0.4s ease;
+  }
+
+  .portrait-frame:hover .portrait-img {
+    filter: grayscale(0%) contrast(1.05);
+    transform: scale(1.015);
+  }
+
+  .portrait-badge {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    padding: 0.35rem 0.85rem;
+    background: var(--bg-glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 9999px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--text-primary);
+  }
+
+  /* Narrative Column */
+  .narrative-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .persona-headline {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3.5vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem;
+  }
+
+  .persona-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Skills Block */
+  .skills-block {
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .skills-heading {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 1.25rem;
+  }
+
+  .skills-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  .skill-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    border-radius: 9999px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .skill-item:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-focus);
+    transform: translateY(-1px);
+  }
+
+  .skill-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--accent-badge);
+  }
+
+  /* Responsive Rules (tested down to 375px) */
+  @media (max-width: 900px) {
+    .persona-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .portrait-img {
+      max-height: 480px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .about-section {
+      padding: 3.5rem 1.25rem;
+    }
+
+    .manifesto-headline {
+      font-size: 1.85rem;
+    }
+
+    .skill-item {
+      font-size: 0.8rem;
+      padding: 0.45rem 0.85rem;
+    }
+  }
+</style>

@@ -3,6 +3,8 @@ import { getEntry } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Works from '../components/Works.astro';
 
 // Fetch profile data from Content Collections
 const profileEntry = await getEntry('profile', 'about');
@@ -23,6 +25,8 @@ const profile = profileEntry?.data;
       videoSrc={profile?.hero_video}
       posterSrc={profile?.portrait_main}
     />
+    <About profile={profile} />
+    <Works />
   </main>
 </Layout>
 

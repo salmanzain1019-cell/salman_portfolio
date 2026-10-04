@@ -1,0 +1,288 @@
+---
+// src/components/Works.astro
+import { getCollection } from 'astro:content';
+
+const allWorks = await getCollection('works');
+const featuredWorks = allWorks
+  .filter((work) => work.data.featured)
+  .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+
+// Image dimensions map for zero layout shift (CLS)
+const imageDimensions: Record<string, { width: number; height: number }> = {
+  '/assets/works/work1.png': { width: 766, height: 1254 },
+  '/assets/works/work3.png': { width: 1633, height: 708 },
+  '/assets/works/work5.png': { width: 1582, height: 689 },
+};
+---
+
+<section id="works" class="works-section" aria-label="Featured Works & Case Studies">
+  <div class="works-container">
+    <!-- Section Header -->
+    <div class="works-header">
+      <div class="section-tag" aria-hidden="true">
+        <span class="tag-number">03</span>
+        <span class="tag-divider">/</span>
+        <span class="tag-label">PORTFOLIO</span>
+      </div>
+      <h2 class="works-headline">FEATURED WORKS & CASE STUDIES</h2>
+      <p class="works-subhead">Campaigns, Billboards & Ad Creatives</p>
+    </div>
+
+    <!-- Works Grid -->
+    <div class="works-grid">
+      {featuredWorks.map((work) => {
+        const dims = imageDimensions[work.data.image] ?? { width: 1200, height: 800 };
+        return (
+          <article class="work-card">
+            <!-- Artwork Preview -->
+            <div class="card-media">
+              <img
+                src={work.data.image}
+                alt={`${work.data.title} - ${work.data.category} campaign for ${work.data.client}`}
+                width={dims.width}
+                height={dims.height}
+                loading="lazy"
+                class="card-img"
+              />
+              <div class="card-tag-pill">{work.data.category.toUpperCase()}</div>
+            </div>
+
+            <!-- Card Content Details -->
+            <div class="card-content">
+              <span class="card-client">{work.data.client}</span>
+              <h3 class="card-title">{work.data.title}</h3>
+
+              {work.data.headline_copy && (
+                <blockquote class="card-quote">
+                  "{work.data.headline_copy}"
+                </blockquote>
+              )}
+
+              {work.data.objective && (
+                <div class="card-objective">
+                  <span class="objective-label">OBJECTIVE:</span>
+                  <span class="objective-text">{work.data.objective}</span>
+                </div>
+              )}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .works-section {
+    position: relative;
+    width: 100%;
+    padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 5vw, 4rem);
+    background-color: var(--bg-primary);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .works-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  /* Section Tag */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .tag-number {
+    color: var(--text-secondary);
+  }
+
+  .tag-divider {
+    color: var(--border-focus);
+  }
+
+  /* Works Header */
+  .works-header {
+    margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+  }
+
+  .works-headline {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem;
+  }
+
+  .works-subhead {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+
+  /* Works Grid */
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+
+  /* First featured card spans across if odd count or emphasis */
+  .work-card:first-child {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 901px) {
+    .work-card:first-child {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .work-card:first-child .card-media {
+      margin-bottom: 0;
+    }
+  }
+
+  /* Card */
+  .work-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .work-card:hover {
+    border-color: var(--border-focus);
+    transform: translateY(-2px);
+  }
+
+  /* Media */
+  .card-media {
+    position: relative;
+    width: 100%;
+    border-radius: 2px;
+    overflow: hidden;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 1.5rem;
+  }
+
+  .card-img {
+    width: 100%;
+    height: auto;
+    max-height: 520px;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .work-card:hover .card-img {
+    transform: scale(1.02);
+  }
+
+  .card-tag-pill {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+  }
+
+  /* Content */
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .card-client {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .card-quote {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding-left: 0.85rem;
+    border-left: 2px solid var(--border-focus);
+    margin: 0;
+  }
+
+  .card-objective {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .objective-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-right: 0.4rem;
+  }
+
+  /* Responsive Rules (tested down to 375px) */
+  @media (max-width: 900px) {
+    .works-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .work-card:first-child {
+      grid-column: auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .works-section {
+      padding: 3.5rem 1.25rem;
+    }
+
+    .card-img {
+      max-height: 380px;
+    }
+  }
+</style>
