@@ -45,7 +45,7 @@ const {
 
     <h1 class="hero-title">
       <span class="title-line">CREATIVE BY NATURE.</span>
-      <span class="title-line title-highlight">STRATEGIC BY MIND.</span>
+      <span class="title-line">STRATEGIC BY MIND.</span>
     </h1>
 
     <div class="hero-bottom">
@@ -201,17 +201,17 @@ const {
     height: 100%;
     object-fit: cover;
     object-position: center top;
-    filter: brightness(0.85) contrast(1.08);
+    filter: brightness(0.98) contrast(1.02);
     transition: opacity 0.5s ease;
   }
 
-  /* Radial & Bottom Fade Gradient Overlay */
+  /* Radial & Bottom Fade Gradient Overlay (Lightened for video clarity) */
   .video-overlay {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 50% 30%, rgba(10, 10, 11, 0.15) 0%, rgba(10, 10, 11, 0.75) 80%),
-      linear-gradient(to bottom, rgba(10, 10, 11, 0.3) 0%, rgba(10, 10, 11, 0.1) 40%, rgba(10, 10, 11, 0.85) 85%, #0A0A0B 100%);
+      radial-gradient(ellipse at 50% 40%, rgba(10, 10, 11, 0) 30%, rgba(10, 10, 11, 0.35) 85%),
+      linear-gradient(to bottom, rgba(10, 10, 11, 0.3) 0%, rgba(10, 10, 11, 0) 25%, rgba(10, 10, 11, 0.15) 60%, rgba(10, 10, 11, 0.7) 90%, #0A0A0B 100%);
     pointer-events: none;
   }
 
@@ -250,10 +250,10 @@ const {
 
   .hero-title {
     font-family: var(--font-display);
-    font-size: clamp(3rem, 7.5vw, 7.5rem);
+    font-size: clamp(1.4rem, 4.4vw, 4.25rem);
     font-weight: 800;
-    line-height: 0.95;
-    letter-spacing: -0.04em;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
     text-transform: uppercase;
     color: var(--text-primary);
     margin: 0;
@@ -261,11 +261,7 @@ const {
 
   .title-line {
     display: block;
-  }
-
-  .title-highlight {
-    color: #ffffff;
-    text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+    white-space: nowrap;
   }
 
   .hero-bottom {
@@ -275,6 +271,7 @@ const {
     gap: 2rem;
     margin-top: 1rem;
     padding-top: 1.5rem;
+    padding-right: 7.5rem;
     border-top: 1px solid var(--border-subtle);
   }
 
@@ -355,11 +352,12 @@ const {
       flex-direction: column;
       align-items: flex-start;
       gap: 1.25rem;
+      padding-right: 5.5rem;
     }
 
     .hero-controls {
-      bottom: 1.5rem;
-      right: 1.5rem;
+      bottom: 1.25rem;
+      right: 1.25rem;
     }
   }
 </style>
