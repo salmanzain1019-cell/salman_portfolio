@@ -1,0 +1,226 @@
+---
+// src/components/Process.astro
+import { getCollection } from 'astro:content';
+
+const allSteps = await getCollection('process');
+const sortedSteps = allSteps.sort((a, b) => a.data.step_number - b.data.step_number);
+---
+
+<section id="process" class="process-section" aria-label="5-Stage Creative Framework">
+  <div class="process-container">
+    <!-- Header -->
+    <div class="process-header">
+      <div class="section-tag" aria-hidden="true">
+        <span class="tag-number">04</span>
+        <span class="tag-divider">/</span>
+        <span class="tag-label">METHODOLOGY</span>
+      </div>
+      <h2 class="process-headline">5-STAGE CREATIVE FRAMEWORK</h2>
+      <p class="process-subhead">From Discovery to Delivery</p>
+    </div>
+
+    <!-- Steps Grid -->
+    <div class="steps-grid">
+      {sortedSteps.map((step) => {
+        const numStr = String(step.data.step_number).padStart(2, '0');
+        return (
+          <article class="step-card">
+            <div class="step-top">
+              <span class="step-number">{numStr}</span>
+              <span class="step-label">PHASE</span>
+            </div>
+            <h3 class="step-title">{step.data.title}</h3>
+            <p class="step-summary">{step.data.summary}</p>
+
+            {step.data.deliverables && step.data.deliverables.length > 0 && (
+              <div class="step-deliverables">
+                <span class="deliverables-heading">DELIVERABLES</span>
+                <ul class="deliverables-list" aria-label={`Deliverables for ${step.data.title}`}>
+                  {step.data.deliverables.map((item) => (
+                    <li class="deliverable-item">{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .process-section {
+    position: relative;
+    width: 100%;
+    padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 5vw, 4rem);
+    background-color: var(--bg-primary);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .process-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  /* Section Tag */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .tag-number {
+    color: var(--text-secondary);
+  }
+
+  .tag-divider {
+    color: var(--border-focus);
+  }
+
+  /* Header */
+  .process-header {
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .process-headline {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem;
+  }
+
+  .process-subhead {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+
+  /* Steps Grid */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Step Card */
+  .step-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: clamp(1.5rem, 2.5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .step-card:hover {
+    border-color: var(--border-focus);
+    transform: translateY(-2px);
+  }
+
+  .step-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .step-number {
+    font-family: var(--font-mono);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .step-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+  }
+
+  .step-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem;
+  }
+
+  .step-summary {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+  }
+
+  /* Deliverables */
+  .step-deliverables {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .deliverables-heading {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .deliverables-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .deliverable-item {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    position: relative;
+    padding-left: 0.85rem;
+  }
+
+  .deliverable-item::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--accent-badge);
+  }
+
+  /* Responsive Rules (375px mobile) */
+  @media (max-width: 480px) {
+    .process-section {
+      padding: 3.5rem 1.25rem;
+    }
+
+    .steps-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

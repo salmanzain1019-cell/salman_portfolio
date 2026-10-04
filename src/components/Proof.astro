@@ -1,0 +1,248 @@
+---
+// src/components/Proof.astro
+import { getCollection } from 'astro:content';
+
+const proofEntries = await getCollection('proof');
+const primaryProof = proofEntries[0]?.data;
+
+// Verified statistics from DESIGN.md and content/proof
+const stats = [
+  { number: "2,252,429+", label: "VIEWS", sublabel: "Organic Discovery" },
+  { number: "644K+", label: "SHARES", sublabel: "Peer Recommendations" },
+  { number: "111K+", label: "LIKES", sublabel: "Audience Resonance" },
+  { number: "99.6%", label: "NON-FOLLOWERS", sublabel: "Viral Reach Ratio" },
+];
+---
+
+<section id="proof" class="proof-section" aria-label="Numbers Don't Lie - Verified Proof">
+  <div class="proof-container">
+    <!-- Header -->
+    <div class="proof-header">
+      <div class="section-tag" aria-hidden="true">
+        <span class="tag-number">05</span>
+        <span class="tag-divider">/</span>
+        <span class="tag-label">EVIDENCE</span>
+      </div>
+      <h2 class="proof-headline">NUMBERS DON'T LIE</h2>
+      <p class="proof-subhead">Verified Viral Reach & Performance</p>
+    </div>
+
+    <!-- Main Layout: Stats on Left, Screenshot on Right (max 436px) -->
+    <div class="proof-content">
+      <!-- Stat Cards Grid -->
+      <div class="stats-grid">
+        {stats.map((stat) => (
+          <div class="stat-card">
+            <span class="stat-number">{stat.number}</span>
+            <span class="stat-label">{stat.label}</span>
+            <span class="stat-sublabel">{stat.sublabel}</span>
+          </div>
+        ))}
+      </div>
+
+      <!-- Screenshot Proof Frame (Never displayed larger than native 436px width) -->
+      <div class="screenshot-col">
+        <div class="screenshot-frame">
+          <img
+            src={primaryProof?.screenshot ?? "/assets/scrnsht_oc/scrnshot_img_3.png"}
+            alt="Instagram viral reach analytics showing 2,252,429 views, 644K shares, and 99.6% non-follower reach"
+            width={436}
+            height={416}
+            loading="lazy"
+            class="proof-img"
+          />
+          <div class="screenshot-caption">
+            <span class="caption-platform">{primaryProof?.platform ?? "Instagram"} Analytics</span>
+            <span class="caption-note">{primaryProof?.highlight ?? "644K Shares • 111K Likes • 99.6% Non-Follower Reach"}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .proof-section {
+    position: relative;
+    width: 100%;
+    padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 5vw, 4rem);
+    background-color: var(--bg-primary);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .proof-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  /* Section Tag */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .tag-number {
+    color: var(--text-secondary);
+  }
+
+  .tag-divider {
+    color: var(--border-focus);
+  }
+
+  /* Header */
+  .proof-header {
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .proof-headline {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem;
+  }
+
+  .proof-subhead {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+
+  /* Content Split */
+  .proof-content {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .stat-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .stat-card:hover {
+    border-color: var(--border-focus);
+    transform: translateY(-2px);
+  }
+
+  .stat-number {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin-top: 0.4rem;
+  }
+
+  .stat-sublabel {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Screenshot Column (Enforcing max 436px width) */
+  .screenshot-col {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .screenshot-frame {
+    max-width: 436px;
+    width: 100%;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+  }
+
+  .screenshot-frame:hover {
+    border-color: var(--border-focus);
+  }
+
+  .proof-img {
+    max-width: 436px;
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    background-color: #000000;
+  }
+
+  .screenshot-caption {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .caption-platform {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .caption-note {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* Responsive Rules (375px mobile) */
+  @media (max-width: 900px) {
+    .proof-content {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .proof-section {
+      padding: 3.5rem 1.25rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+</style>

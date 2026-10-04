@@ -1,0 +1,265 @@
+---
+// src/components/Footer.astro
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  profile?: CollectionEntry<'profile'>['data'];
+}
+
+const { profile } = Astro.props;
+
+const email = profile?.email ?? "salmanzain1019@gmail.com";
+const phone = profile?.phone ?? "+91 9778354373";
+const cleanPhone = phone.replace(/[^0-9]/g, "");
+const edition = profile?.edition ?? "2026 EDITION";
+const name = profile?.name ?? "Muhammed Salman";
+const role = profile?.display_title ?? "Creative Strategist & Copywriter";
+---
+
+<footer id="contact" class="footer-section" aria-label="Contact and Outro">
+  <div class="footer-container">
+    <!-- Top Outro / Call to Action -->
+    <div class="outro-block">
+      <div class="section-tag" aria-hidden="true">
+        <span class="tag-number">07</span>
+        <span class="tag-divider">/</span>
+        <span class="tag-label">CONTACT</span>
+      </div>
+
+      <h2 class="outro-headline">LET'S WORK TOGETHER</h2>
+      <p class="outro-hook">"Lowkey cooked this just for him"</p>
+    </div>
+
+    <!-- Contact Channels (Only verified, live channels — zero dead links) -->
+    <div class="contact-channels">
+      <a href={`mailto:${email}`} class="channel-card" aria-label={`Send email to ${email}`}>
+        <span class="channel-label">EMAIL DIRECT</span>
+        <span class="channel-value">{email}</span>
+        <span class="channel-arrow" aria-hidden="true">↗</span>
+      </a>
+
+      <a href={`tel:${phone}`} class="channel-card" aria-label={`Call ${phone}`}>
+        <span class="channel-label">TELEPHONE</span>
+        <span class="channel-value">{phone}</span>
+        <span class="channel-arrow" aria-hidden="true">↗</span>
+      </a>
+
+      <a
+        href={`https://wa.me/${cleanPhone}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="channel-card channel-card-highlight"
+        aria-label="Direct message on WhatsApp"
+      >
+        <span class="channel-label">INSTANT CHAT</span>
+        <span class="channel-value">WhatsApp Chat</span>
+        <span class="channel-arrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="footer-bottom">
+      <div class="footer-info">
+        <span class="info-name">{name}</span>
+        <span class="info-divider" aria-hidden="true">•</span>
+        <span class="info-role">{role}</span>
+        <span class="info-divider" aria-hidden="true">•</span>
+        <span class="info-edition">{edition}</span>
+      </div>
+
+      <a href="#hero" class="back-to-top" aria-label="Back to top of page">
+        <span class="back-text">BACK TO TOP</span>
+        <svg class="back-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="19" x2="12" y2="5"></line>
+          <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-section {
+    position: relative;
+    width: 100%;
+    padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 5vw, 4rem) 2.5rem;
+    background-color: var(--bg-primary);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .footer-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+  }
+
+  /* Section Tag */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .tag-number {
+    color: var(--text-secondary);
+  }
+
+  .tag-divider {
+    color: var(--border-focus);
+  }
+
+  /* Outro Block */
+  .outro-block {
+    margin-bottom: clamp(3rem, 6vw, 5rem);
+  }
+
+  .outro-headline {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 7vw, 6rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+  }
+
+  .outro-hook {
+    font-family: var(--font-body);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 0;
+  }
+
+  /* Contact Channels */
+  .contact-channels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: clamp(4rem, 8vw, 6rem);
+  }
+
+  .channel-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    text-decoration: none;
+    transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .channel-card:hover {
+    border-color: var(--border-focus);
+    background-color: var(--bg-tertiary);
+    transform: translateY(-2px);
+  }
+
+  .channel-card-highlight {
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .channel-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .channel-value {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+
+  .channel-arrow {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .channel-card:hover .channel-arrow {
+    transform: translate(3px, -3px);
+    color: var(--text-primary);
+  }
+
+  /* Footer Bottom */
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .footer-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .info-name {
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .info-divider {
+    color: var(--border-focus);
+  }
+
+  .back-to-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .back-to-top:hover {
+    color: var(--text-primary);
+    transform: translateY(-2px);
+  }
+
+  /* Responsive Rules (375px mobile) */
+  @media (max-width: 768px) {
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.25rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-section {
+      padding: 3.5rem 1.25rem 2rem;
+    }
+
+    .contact-channels {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

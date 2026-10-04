@@ -1,0 +1,270 @@
+---
+// src/components/Clients.astro
+import { getCollection } from 'astro:content';
+
+const allClients = await getCollection('clients');
+const sortedClients = allClients.sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99));
+
+// Image dimensions map for zero layout shift
+const logoDimensions: Record<string, { width: number; height: number }> = {
+  '/assets/logos/logo_1.png': { width: 388, height: 128 },
+  '/assets/logos/logo_2.png': { width: 365, height: 194 },
+  '/assets/logos/logo_4.png': { width: 314, height: 213 },
+};
+
+// Repeat list to create a seamless infinite loop marquee
+const repeatedClients = [...sortedClients, ...sortedClients, ...sortedClients];
+---
+
+<section class="clients-section" aria-label="Clients & Collaborations">
+  <div class="clients-container">
+    <div class="clients-header">
+      <div class="section-tag" aria-hidden="true">
+        <span class="tag-number">06</span>
+        <span class="tag-divider">/</span>
+        <span class="tag-label">COLLABORATIONS</span>
+      </div>
+      <h2 class="clients-headline">CLIENTS & COLLABORATIONS</h2>
+      <p class="clients-subhead">Startups and Independent Brands</p>
+    </div>
+  </div>
+
+  <!-- Infinite Marquee Ticker Track (Pauses on Hover, Respects Reduced Motion) -->
+  <div class="ticker-wrapper" aria-label="Client logos marquee">
+    <div class="ticker-track">
+      <!-- Primary accessible set -->
+      <div class="ticker-group">
+        {sortedClients.map((client) => {
+          const dims = logoDimensions[client.data.logo] ?? { width: 300, height: 150 };
+          return (
+            <div class="logo-item" title={client.data.name}>
+              <img
+                src={client.data.logo}
+                alt={`${client.data.name} logo`}
+                width={dims.width}
+                height={dims.height}
+                loading="lazy"
+                class:list={['client-logo', { 'logo-white': client.data.is_white_logo }]}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <!-- Duplicate set 1 for loop (aria-hidden) -->
+      <div class="ticker-group" aria-hidden="true">
+        {sortedClients.map((client) => {
+          const dims = logoDimensions[client.data.logo] ?? { width: 300, height: 150 };
+          return (
+            <div class="logo-item">
+              <img
+                src={client.data.logo}
+                alt=""
+                width={dims.width}
+                height={dims.height}
+                loading="lazy"
+                class:list={['client-logo', { 'logo-white': client.data.is_white_logo }]}
+              />
+            </div>
+          );
+        })}
+      </div>
+
+      <!-- Duplicate set 2 for wide screens loop (aria-hidden) -->
+      <div class="ticker-group" aria-hidden="true">
+        {sortedClients.map((client) => {
+          const dims = logoDimensions[client.data.logo] ?? { width: 300, height: 150 };
+          return (
+            <div class="logo-item">
+              <img
+                src={client.data.logo}
+                alt=""
+                width={dims.width}
+                height={dims.height}
+                loading="lazy"
+                class:list={['client-logo', { 'logo-white': client.data.is_white_logo }]}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .clients-section {
+    position: relative;
+    width: 100%;
+    padding: clamp(4rem, 8vw, 7rem) 0;
+    background-color: var(--bg-primary);
+    border-top: 1px solid var(--border-subtle);
+    overflow: hidden;
+  }
+
+  .clients-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 clamp(1.25rem, 5vw, 4rem);
+  }
+
+  /* Section Tag */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .tag-number {
+    color: var(--text-secondary);
+  }
+
+  .tag-divider {
+    color: var(--border-focus);
+  }
+
+  /* Header */
+  .clients-header {
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .clients-headline {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem;
+  }
+
+  .clients-subhead {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    font-weight: 400;
+    color: var(--text-secondary);
+  }
+
+  /* Ticker Wrapper & Track */
+  .ticker-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    animation: scroll-ticker 24s linear infinite;
+  }
+
+  /* Pause on hover */
+  .ticker-track:hover {
+    animation-play-state: paused;
+  }
+
+  .ticker-group {
+    display: flex;
+    align-items: center;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    padding-right: clamp(2.5rem, 6vw, 5rem);
+    flex-shrink: 0;
+  }
+
+  /* Logo Items */
+  .logo-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+    padding: 0.5rem 1.5rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    transition: border-color 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+  }
+
+  .logo-item:hover {
+    border-color: var(--border-focus);
+    background-color: var(--bg-tertiary);
+    transform: translateY(-2px);
+  }
+
+  .client-logo {
+    max-height: 42px;
+    width: auto;
+    max-width: 160px;
+    object-fit: contain;
+    filter: grayscale(100%) opacity(0.55);
+    transition: filter 0.3s ease, opacity 0.3s ease;
+  }
+
+  .logo-item:hover .client-logo {
+    filter: grayscale(0%) opacity(1);
+  }
+
+  /* Ticker Animation */
+  @keyframes scroll-ticker {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-33.333333%);
+    }
+  }
+
+  /* Accessibility: prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-wrapper {
+      mask-image: none;
+      -webkit-mask-image: none;
+      overflow-x: auto;
+    }
+
+    .ticker-track {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      width: 100%;
+      padding: 0 1.25rem;
+    }
+
+    .ticker-group:nth-child(n+2) {
+      display: none;
+    }
+
+    .ticker-group {
+      flex-wrap: wrap;
+      justify-content: center;
+      padding-right: 0;
+      gap: 1.5rem;
+    }
+  }
+
+  /* Responsive Rules (375px mobile) */
+  @media (max-width: 480px) {
+    .clients-section {
+      padding: 3.5rem 0;
+    }
+
+    .logo-item {
+      height: 60px;
+      padding: 0.5rem 1rem;
+    }
+
+    .client-logo {
+      max-height: 32px;
+      max-width: 120px;
+    }
+  }
+</style>
