@@ -111,44 +111,90 @@ const {
   const iconUnmuted = document.getElementById('icon-unmuted');
 
   if (video) {
+    // Explicitly enforce loop and muted properties
+    video.loop = true;
+    video.muted = true;
+
+    let userManuallyPaused = false;
+
+    // Guarantee seamless infinite looping across all browsers
+    video.addEventListener('ended', () => {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    });
+
+    const updatePlayPauseIcons = (isPlaying: boolean) => {
+      if (iconPlay && iconPause) {
+        iconPlay.style.display = isPlaying ? 'none' : 'block';
+        iconPause.style.display = isPlaying ? 'block' : 'none';
+      }
+      playPauseBtn?.setAttribute(
+        'aria-label',
+        isPlaying ? 'Pause background video' : 'Play background video'
+      );
+    };
+
+    video.addEventListener('play', () => updatePlayPauseIcons(true));
+    video.addEventListener('pause', () => {
+      if (userManuallyPaused) updatePlayPauseIcons(false);
+    });
+
     // Respect prefers-reduced-motion
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     const handleMotionPreference = (mediaQuery: MediaQueryList | MediaQueryListEvent) => {
       if (mediaQuery.matches) {
         video.pause();
-        video.removeAttribute('autoplay');
-        if (iconPlay && iconPause) {
-          iconPlay.style.display = 'block';
-          iconPause.style.display = 'none';
-        }
-        playPauseBtn?.setAttribute('aria-label', 'Play background video');
-      } else {
-        video.play().catch(() => {
-          // Autoplay policy prevented playback
-        });
+        updatePlayPauseIcons(false);
+      } else if (!userManuallyPaused) {
+        video.play().catch(() => {});
       }
     };
 
     handleMotionPreference(prefersReducedMotion);
     prefersReducedMotion.addEventListener('change', handleMotionPreference);
 
+    // Initial load autoplay guarantee with interaction fallback
+    const startPlayback = () => {
+      if (!prefersReducedMotion.matches && !userManuallyPaused && video.paused) {
+        video.play().catch(() => {
+          // Autoplay policy prevented playback, start on first user interaction
+          const resumeOnInteraction = () => {
+            if (!userManuallyPaused) {
+              video.play().catch(() => {});
+            }
+            ['click', 'touchstart', 'scroll', 'keydown'].forEach((evt) => {
+              window.removeEventListener(evt, resumeOnInteraction);
+            });
+          };
+          ['click', 'touchstart', 'scroll', 'keydown'].forEach((evt) => {
+            window.addEventListener(evt, resumeOnInteraction, { once: true, passive: true });
+          });
+        });
+      }
+    };
+
+    startPlayback();
+    video.addEventListener('loadedmetadata', startPlayback);
+    video.addEventListener('canplay', startPlayback);
+
+    // Keep looping when returning to the tab
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !userManuallyPaused && !prefersReducedMotion.matches && video.paused) {
+        video.play().catch(() => {});
+      }
+    });
+
     // Play / Pause Toggle
     playPauseBtn?.addEventListener('click', () => {
       if (video.paused) {
+        userManuallyPaused = false;
         video.play();
-        if (iconPlay && iconPause) {
-          iconPlay.style.display = 'none';
-          iconPause.style.display = 'block';
-        }
-        playPauseBtn.setAttribute('aria-label', 'Pause background video');
+        updatePlayPauseIcons(true);
       } else {
+        userManuallyPaused = true;
         video.pause();
-        if (iconPlay && iconPause) {
-          iconPlay.style.display = 'block';
-          iconPause.style.display = 'none';
-        }
-        playPauseBtn.setAttribute('aria-label', 'Play background video');
+        updatePlayPauseIcons(false);
       }
     });
 

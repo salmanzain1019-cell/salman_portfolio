@@ -24,8 +24,8 @@ phone: "+91 9778354373"
 website: "muhammedsalman.com"
 ---
 
-I'm a Digital marketer and self-taught Creative Strategist working at the intersection of ideas, design, and business objectives. I help brands move from noise to meaning by building clear narratives, strong visual identities, and communication strategies that actually convert.
+I turn raw ideas into clear creative concepts, compelling stories, and memorable brand experiences.
 
-I began by creating content, writing copy, and designing visuals on my own, learning how ideas turn into real work. While studying, I freelance and focus on strategy-led creatives that feel clear, relevant, and well thought out.
+As a Creative Director, Content Creator, and Copywriter, I bring together strategic thinking and imaginative execution to help brands communicate with clarity and impact. I find fresh perspectives, challenge conventional thinking, and create work that captures attention while giving audiences a reason to care.
 
-Am not just a copywriter! I'm a Content creator, Content writer, Video presenter, and Director. Proof? Swipe through my work. Nah! Just beginning.
+From the first spark of an idea to the final piece of content, I shape every detail with purpose. Whether developing a brand voice, leading a creative direction, or crafting content, I help clients and collaborators uncover what makes their message distinctive and bring it to life.
