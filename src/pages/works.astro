@@ -1,0 +1,453 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+// Fetch ALL entries from the works collection directly from Markdown files
+const allWorks = await getCollection('works');
+
+// Sort works: priority to items with an explicit order, then natural collection order
+const sortedWorks = allWorks.sort((a, b) => {
+  if (a.data.order !== undefined && b.data.order !== undefined) {
+    return a.data.order - b.data.order;
+  }
+  if (a.data.order !== undefined) return -1;
+  if (b.data.order !== undefined) return 1;
+  return a.id.localeCompare(b.id);
+});
+
+// Dimensions map for known assets to avoid layout shift (CLS)
+const imageDimensions: Record<string, { width: number; height: number }> = {
+  '/assets/works/work1.png': { width: 766, height: 1254 },
+  '/assets/works/work2.png': { width: 723, height: 1099 },
+  '/assets/works/work3.png': { width: 1633, height: 708 },
+  '/assets/works/work4.png': { width: 1609, height: 691 },
+  '/assets/works/work5.png': { width: 1582, height: 689 },
+  '/assets/works/work6.png': { width: 2462, height: 1125 },
+  '/assets/works/work7.png': { width: 2382, height: 1105 },
+};
+---
+
+<Layout
+  title="All Works & Case Studies — Muhammed Salman"
+  description="Complete archive of campaigns, billboards, and creative copy by Muhammed Salman, Creative Strategist & Copywriter."
+>
+  <div class="works-page">
+    <!-- Top Bar with Back Link -->
+    <header class="works-top-bar">
+      <div class="top-bar-container">
+        <a href="/" class="back-link" id="back-to-home">
+          <span class="back-arrow" aria-hidden="true">←</span>
+          <span>Back to Home</span>
+        </a>
+        <div class="top-bar-meta">
+          <span class="meta-brand">MUHAMMED SALMAN</span>
+          <span class="meta-divider">/</span>
+          <span class="meta-archive">ARCHIVE</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="works-main-container">
+      <!-- Archive Header -->
+      <section class="works-archive-header">
+        <div class="section-tag" aria-hidden="true">
+          <span class="tag-number">03</span>
+          <span class="tag-divider">/</span>
+          <span class="tag-label">PORTFOLIO</span>
+        </div>
+        <div class="headline-row">
+          <h1 class="archive-headline">ALL WORKS & CASE STUDIES</h1>
+          <span class="count-badge">{sortedWorks.length} WORKS</span>
+        </div>
+        <p class="archive-subhead">
+          Complete archive of campaigns, billboards, and creative copywriting.
+        </p>
+      </section>
+
+      <!-- Works Grid (Reusing Home Works Card Style) -->
+      <section class="works-grid-section" aria-label="Works Archive Grid">
+        <div class="works-grid">
+          {sortedWorks.map((work) => {
+            const dims = imageDimensions[work.data.image] ?? { width: 1200, height: 800 };
+            const altText = work.data.client
+              ? `${work.data.title} - ${work.data.client}`
+              : work.data.title;
+
+            return (
+              <article class="work-card" id={`work-${work.id}`}>
+                <!-- Artwork Preview -->
+                <div class="card-media">
+                  <img
+                    src={work.data.image}
+                    alt={altText}
+                    width={dims.width}
+                    height={dims.height}
+                    loading="lazy"
+                    class="card-img"
+                  />
+                  {work.data.category && (
+                    <div class="card-tag-pill">{work.data.category.toUpperCase()}</div>
+                  )}
+                </div>
+
+                <!-- Card Content Details -->
+                <div class="card-content">
+                  {work.data.client && (
+                    <span class="card-client">{work.data.client}</span>
+                  )}
+
+                  <h2 class="card-title">{work.data.title}</h2>
+
+                  {work.data.headline_copy && (
+                    <blockquote class="card-quote">
+                      "{work.data.headline_copy}"
+                    </blockquote>
+                  )}
+
+                  {work.data.objective && (
+                    <div class="card-objective">
+                      <span class="objective-label">OBJECTIVE:</span>
+                      <span class="objective-text">{work.data.objective}</span>
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <!-- Bottom Return Navigation -->
+      <footer class="works-bottom-nav">
+        <a href="/" class="bottom-back-btn">
+          <span aria-hidden="true">←</span>
+          <span>Back to Home</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+</Layout>
+
+<style>
+  .works-page {
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  /* Top Bar Navigation */
+  .works-top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 1.25rem clamp(1.25rem, 5vw, 4rem);
+  }
+
+  .top-bar-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    transition: all 0.25s ease;
+  }
+
+  .back-link:hover {
+    border-color: var(--border-focus);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    transform: translateX(-3px);
+  }
+
+  .back-arrow {
+    transition: transform 0.2s ease;
+  }
+
+  .back-link:hover .back-arrow {
+    transform: translateX(-2px);
+  }
+
+  .top-bar-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+
+  .meta-brand {
+    color: var(--text-secondary);
+  }
+
+  .meta-divider {
+    color: var(--border-focus);
+  }
+
+  /* Main Container */
+  .works-main-container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: clamp(3rem, 6vw, 5rem) clamp(1.25rem, 5vw, 4rem) 6rem;
+  }
+
+  /* Section Tag */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+
+  .tag-number {
+    color: var(--text-secondary);
+  }
+
+  .tag-divider {
+    color: var(--border-focus);
+  }
+
+  /* Archive Header */
+  .works-archive-header {
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .headline-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .archive-headline {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5.5vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .count-badge {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-secondary);
+  }
+
+  .archive-subhead {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 1.8vw, 1.25rem);
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  /* Works Grid */
+  .works-grid-section {
+    width: 100%;
+  }
+
+  .works-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+
+  /* Card */
+  .work-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .work-card:hover {
+    border-color: var(--border-focus);
+    transform: translateY(-2px);
+  }
+
+  /* Media */
+  .card-media {
+    position: relative;
+    width: 100%;
+    border-radius: 2px;
+    overflow: hidden;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 1.5rem;
+  }
+
+  .card-img {
+    width: 100%;
+    height: auto;
+    max-height: 520px;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .work-card:hover .card-img {
+    transform: scale(1.02);
+  }
+
+  .card-tag-pill {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+  }
+
+  /* Content */
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .card-client {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .card-quote {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-style: italic;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding-left: 0.85rem;
+    border-left: 2px solid var(--border-focus);
+    margin: 0;
+  }
+
+  .card-objective {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .objective-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-right: 0.4rem;
+  }
+
+  /* Bottom Navigation */
+  .works-bottom-nav {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: center;
+  }
+
+  .bottom-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    text-decoration: none;
+    padding: 0.75rem 1.75rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    transition: all 0.25s ease;
+  }
+
+  .bottom-back-btn:hover {
+    border-color: var(--border-focus);
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+  }
+
+  /* Responsive Rules */
+  @media (max-width: 900px) {
+    .works-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .top-bar-meta {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .card-img {
+      max-height: 380px;
+    }
+  }
+</style>
