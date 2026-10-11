@@ -6,7 +6,6 @@ interface Props {
   edition?: string;
   displayTitle?: string;
   videoSrc?: string;
-  posterSrc?: string;
 }
 
 const {
@@ -15,7 +14,6 @@ const {
   edition = "2026 EDITION",
   displayTitle = "CREATIVE STRATEGIST",
   videoSrc = "/assets/video/home_video.mp4",
-  posterSrc = "/assets/my_images/myimg_2.png",
 } = Astro.props;
 ---
 
@@ -26,7 +24,6 @@ const {
       id="hero-video"
       class="hero-video"
       src={videoSrc}
-      poster={posterSrc}
       autoplay
       muted
       loop
@@ -37,7 +34,9 @@ const {
       disableremoteplayback
       preload="auto"
       aria-label="Studio turnaround video portrait of Muhammed Salman"
-    ></video>
+    >
+      <source src={videoSrc} type="video/mp4" />
+    </video>
     <div class="video-overlay" aria-hidden="true"></div>
   </div>
 
@@ -165,43 +164,31 @@ const {
       }
     });
 
-    // Respect prefers-reduced-motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    const handleMotionPreference = (mediaQuery: MediaQueryList | MediaQueryListEvent) => {
-      if (mediaQuery.matches) {
-        video.pause();
-        updatePlayPauseIcons(false);
-      } else if (!userManuallyPaused) {
-        video.play().catch(() => {});
-      }
-    };
-
-    handleMotionPreference(prefersReducedMotion);
-    prefersReducedMotion.addEventListener('change', handleMotionPreference);
-
-    // Initial load autoplay guarantee
+    // Initial load autoplay: start playback immediately and on all media readiness events
     const startPlayback = () => {
-      if (!prefersReducedMotion.matches && !userManuallyPaused && video.paused) {
-        video.play().catch(() => {});
+      if (!userManuallyPaused && video.paused) {
+        video.play().then(() => {
+          updatePlayPauseIcons(true);
+        }).catch(() => {
+          // If browser holds playback pending first user interaction, listen for any interaction
+          const resumeOnInteraction = () => {
+            if (!userManuallyPaused && video.paused) {
+              video.play().then(() => updatePlayPauseIcons(true)).catch(() => {});
+            }
+          };
+          ['touchstart', 'touchend', 'click', 'scroll', 'pointerdown'].forEach((evt) => {
+            window.addEventListener(evt, resumeOnInteraction, { once: true, passive: true });
+          });
+        });
       }
     };
 
+    // Attempt playback immediately and on all loading phases
     startPlayback();
     video.addEventListener('loadedmetadata', startPlayback);
     video.addEventListener('loadeddata', startPlayback);
     video.addEventListener('canplay', startPlayback);
-
-    // Mobile gesture unlock (for Low Power Mode or restrictive mobile browser policies)
-    const unlockMobileVideo = () => {
-      if (!userManuallyPaused && !prefersReducedMotion.matches && video.paused) {
-        video.play().catch(() => {});
-      }
-    };
-
-    ['touchstart', 'touchend', 'click', 'scroll'].forEach((evt) => {
-      window.addEventListener(evt, unlockMobileVideo, { passive: true });
-    });
+    video.addEventListener('canplaythrough', startPlayback);
 
     // Mobile scroll restore: mobile browsers pause offscreen videos to save memory;
     // ensure playback resumes whenever the hero section is visible
@@ -209,7 +196,7 @@ const {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
-            if (entry.isIntersecting && !userManuallyPaused && !prefersReducedMotion.matches && video.paused) {
+            if (entry.isIntersecting && !userManuallyPaused && video.paused) {
               video.play().catch(() => {});
             }
           });
@@ -221,7 +208,7 @@ const {
 
     // Keep looping when returning to the tab / app
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && !userManuallyPaused && !prefersReducedMotion.matches && video.paused) {
+      if (!document.hidden && !userManuallyPaused && video.paused) {
         video.play().catch(() => {});
       }
     });
