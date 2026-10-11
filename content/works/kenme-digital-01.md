@@ -1,5 +1,5 @@
 ---
-title:"ഇത് കാത്തിരിപ്പിന്ടെ കഥയാണ്"
+title: "ഇത് കാത്തിരിപ്പിന്ടെ കഥയാണ്"
 client: "Kenme Digital"
 featured: false
 image: "/assets/works/work20_01.png"
