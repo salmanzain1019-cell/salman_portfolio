@@ -31,6 +31,10 @@ const {
       muted
       loop
       playsinline
+      webkit-playsinline
+      x5-playsinline="true"
+      disablepictureinpicture
+      disableremoteplayback
       preload="auto"
       aria-label="Studio turnaround video portrait of Muhammed Salman"
     ></video>
@@ -111,16 +115,33 @@ const {
   const iconUnmuted = document.getElementById('icon-unmuted');
 
   if (video) {
-    // Explicitly enforce loop and muted properties
-    video.loop = true;
+    // Explicitly enforce loop and muted properties for mobile browsers (iOS WebKit & Android)
+    video.defaultMuted = true;
     video.muted = true;
+    video.loop = true;
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
 
     let userManuallyPaused = false;
 
-    // Guarantee seamless infinite looping across all browsers
-    video.addEventListener('ended', () => {
-      video.currentTime = 0;
-      video.play().catch(() => {});
+    // Continuous loop trigger function
+    const loopVideo = () => {
+      if (!userManuallyPaused) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+      }
+    };
+
+    // 1. Standard loop callback
+    video.addEventListener('ended', loopVideo);
+
+    // 2. Mobile Safari / iOS low-power fix:
+    // WebKit on mobile often freezes or shows black frame at the exact end of video.
+    // Seeking slightly before EOF guarantees a seamless continuous loop.
+    video.addEventListener('timeupdate', () => {
+      if (!userManuallyPaused && video.duration && video.currentTime >= video.duration - 0.25) {
+        loopVideo();
+      }
     });
 
     const updatePlayPauseIcons = (isPlaying: boolean) => {
@@ -136,7 +157,12 @@ const {
 
     video.addEventListener('play', () => updatePlayPauseIcons(true));
     video.addEventListener('pause', () => {
-      if (userManuallyPaused) updatePlayPauseIcons(false);
+      if (userManuallyPaused) {
+        updatePlayPauseIcons(false);
+      } else {
+        // If mobile OS automatically pauses (low power / background throttle), auto-resume
+        video.play().catch(() => {});
+      }
     });
 
     // Respect prefers-reduced-motion
@@ -154,31 +180,46 @@ const {
     handleMotionPreference(prefersReducedMotion);
     prefersReducedMotion.addEventListener('change', handleMotionPreference);
 
-    // Initial load autoplay guarantee with interaction fallback
+    // Initial load autoplay guarantee
     const startPlayback = () => {
       if (!prefersReducedMotion.matches && !userManuallyPaused && video.paused) {
-        video.play().catch(() => {
-          // Autoplay policy prevented playback, start on first user interaction
-          const resumeOnInteraction = () => {
-            if (!userManuallyPaused) {
-              video.play().catch(() => {});
-            }
-            ['click', 'touchstart', 'scroll', 'keydown'].forEach((evt) => {
-              window.removeEventListener(evt, resumeOnInteraction);
-            });
-          };
-          ['click', 'touchstart', 'scroll', 'keydown'].forEach((evt) => {
-            window.addEventListener(evt, resumeOnInteraction, { once: true, passive: true });
-          });
-        });
+        video.play().catch(() => {});
       }
     };
 
     startPlayback();
     video.addEventListener('loadedmetadata', startPlayback);
+    video.addEventListener('loadeddata', startPlayback);
     video.addEventListener('canplay', startPlayback);
 
-    // Keep looping when returning to the tab
+    // Mobile gesture unlock (for Low Power Mode or restrictive mobile browser policies)
+    const unlockMobileVideo = () => {
+      if (!userManuallyPaused && !prefersReducedMotion.matches && video.paused) {
+        video.play().catch(() => {});
+      }
+    };
+
+    ['touchstart', 'touchend', 'click', 'scroll'].forEach((evt) => {
+      window.addEventListener(evt, unlockMobileVideo, { passive: true });
+    });
+
+    // Mobile scroll restore: mobile browsers pause offscreen videos to save memory;
+    // ensure playback resumes whenever the hero section is visible
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !userManuallyPaused && !prefersReducedMotion.matches && video.paused) {
+              video.play().catch(() => {});
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(video);
+    }
+
+    // Keep looping when returning to the tab / app
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && !userManuallyPaused && !prefersReducedMotion.matches && video.paused) {
         video.play().catch(() => {});
@@ -249,6 +290,7 @@ const {
     object-position: center top;
     filter: brightness(0.98) contrast(1.02);
     transition: opacity 0.5s ease;
+    pointer-events: none;
   }
 
   /* Radial & Bottom Fade Gradient Overlay (Lightened for video clarity) */
