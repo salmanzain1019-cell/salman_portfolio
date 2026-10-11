@@ -31,8 +31,8 @@ const works = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './content/works' }),
   schema: z.object({
     title: z.string(),
-    client: z.string(),
-    category: z.enum(['billboard', 'print', 'social', 'branding']),
+    client: z.string().optional(),
+    category: z.enum(['billboard', 'print', 'social', 'branding']).optional(),
     featured: z.boolean(),
     order: z.number().int().optional(),
     image: z.string(),
