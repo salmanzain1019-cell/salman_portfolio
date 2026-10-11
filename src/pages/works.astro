@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import WorkLightbox from '../components/WorkLightbox.astro';
 
 // Fetch ALL entries from the works collection directly from Markdown files
 const allWorks = await getCollection('works');
@@ -125,6 +126,9 @@ const imageDimensions: Record<string, { width: number; height: number }> = {
         </a>
       </footer>
     </main>
+
+    <!-- Work Details Lightbox Dialog -->
+    <WorkLightbox works={sortedWorks} />
   </div>
 </Layout>
 
@@ -300,11 +304,17 @@ const imageDimensions: Record<string, { width: number; height: number }> = {
     display: flex;
     flex-direction: column;
     transition: border-color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
   }
 
   .work-card:hover {
     border-color: var(--border-focus);
     transform: translateY(-2px);
+  }
+
+  .work-card:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 4px;
   }
 
   /* Media */

@@ -1,0 +1,624 @@
+---
+// src/components/WorkLightbox.astro
+import type { CollectionEntry } from 'astro:content';
+
+export interface WorkItem {
+  id: string;
+  title: string;
+  client?: string;
+  category?: string;
+  image: string;
+  headline_copy?: string;
+  objective?: string;
+  language?: string;
+}
+
+interface Props {
+  works: Array<CollectionEntry<'works'>> | WorkItem[];
+}
+
+const { works } = Astro.props;
+
+// Clean serialized dataset for instant, layout-shift free modal navigation
+const serializedWorks: WorkItem[] = works.map((w: any) => {
+  const data = w.data ?? w;
+  return {
+    id: String(w.id ?? ''),
+    title: String(data.title ?? ''),
+    client: data.client ? String(data.client) : undefined,
+    category: data.category ? String(data.category) : undefined,
+    image: String(data.image ?? ''),
+    headline_copy: data.headline_copy ? String(data.headline_copy) : undefined,
+    objective: data.objective ? String(data.objective) : undefined,
+    language: data.language ? String(data.language) : undefined,
+  };
+});
+---
+
+<dialog id="work-lightbox" class="lightbox-dialog" aria-labelledby="lightbox-title" aria-modal="true">
+  <div class="lightbox-wrapper">
+    <!-- Previous Button -->
+    <button
+      type="button"
+      id="lightbox-prev"
+      class="lightbox-nav-btn prev-btn"
+      aria-label="Previous work (Left arrow key)"
+      title="Previous work"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    </button>
+
+    <!-- Main Modal Card -->
+    <div class="lightbox-card" id="lightbox-card">
+      <!-- Top Action Bar: Counter & Close -->
+      <div class="lightbox-top-bar">
+        <div class="lightbox-counter" id="lightbox-counter" aria-label="Work index">
+          <span id="lightbox-current-num">01</span>
+          <span class="counter-slash" aria-hidden="true">/</span>
+          <span id="lightbox-total-num">00</span>
+        </div>
+
+        <button
+          type="button"
+          id="lightbox-close"
+          class="lightbox-close-btn"
+          aria-label="Close dialog (Escape key)"
+          title="Close dialog"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="lightbox-body">
+        <!-- Media Container -->
+        <div class="lightbox-media-container">
+          <img id="lightbox-img" src="" alt="" class="lightbox-img" />
+          <div id="lightbox-category-tag" class="lightbox-category-tag" style="display: none;"></div>
+        </div>
+
+        <!-- Info / Details Container -->
+        <div class="lightbox-info-container">
+          <!-- Client Tag (hidden if empty) -->
+          <div id="lightbox-client-wrap" class="lightbox-field" style="display: none;">
+            <span class="field-label">CLIENT</span>
+            <span id="lightbox-client" class="client-value"></span>
+          </div>
+
+          <!-- Title -->
+          <h2 id="lightbox-title" class="lightbox-title"></h2>
+
+          <!-- Headline Copy (hidden if empty) -->
+          <div id="lightbox-quote-wrap" class="lightbox-field quote-field" style="display: none;">
+            <blockquote id="lightbox-quote" class="lightbox-quote"></blockquote>
+          </div>
+
+          <!-- Objective (hidden if empty) -->
+          <div id="lightbox-objective-wrap" class="lightbox-field objective-field" style="display: none;">
+            <span class="field-label">OBJECTIVE</span>
+            <p id="lightbox-objective" class="objective-text"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Button -->
+    <button
+      type="button"
+      id="lightbox-next"
+      class="lightbox-nav-btn next-btn"
+      aria-label="Next work (Right arrow key)"
+      title="Next work"
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </button>
+  </div>
+</dialog>
+
+<!-- Client Data Store -->
+<script id="lightbox-works-data" type="application/json" set:html={JSON.stringify(serializedWorks)} />
+
+<script>
+  interface WorkData {
+    id: string;
+    title: string;
+    client?: string;
+    category?: string;
+    image: string;
+    headline_copy?: string;
+    objective?: string;
+    language?: string;
+  }
+
+  function initWorkLightbox() {
+    const dialog = document.getElementById('work-lightbox') as HTMLDialogElement | null;
+    const cardPanel = document.getElementById('lightbox-card');
+    const closeBtn = document.getElementById('lightbox-close');
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+    const dataScript = document.getElementById('lightbox-works-data');
+
+    if (!dialog || !dataScript) return;
+
+    let works: WorkData[] = [];
+    try {
+      works = JSON.parse(dataScript.textContent || '[]');
+    } catch {
+      works = [];
+    }
+
+    if (!works.length) return;
+
+    let currentIndex = 0;
+    let triggerElement: HTMLElement | null = null;
+
+    // Elements
+    const imgEl = document.getElementById('lightbox-img') as HTMLImageElement | null;
+    const catEl = document.getElementById('lightbox-category-tag');
+    const clientWrap = document.getElementById('lightbox-client-wrap');
+    const clientEl = document.getElementById('lightbox-client');
+    const titleEl = document.getElementById('lightbox-title');
+    const quoteWrap = document.getElementById('lightbox-quote-wrap');
+    const quoteEl = document.getElementById('lightbox-quote');
+    const objWrap = document.getElementById('lightbox-objective-wrap');
+    const objEl = document.getElementById('lightbox-objective');
+    const currentNumEl = document.getElementById('lightbox-current-num');
+    const totalNumEl = document.getElementById('lightbox-total-num');
+
+    if (totalNumEl) {
+      totalNumEl.textContent = String(works.length).padStart(2, '0');
+    }
+
+    function renderWork(index: number) {
+      if (index < 0 || index >= works.length) return;
+      const work = works[index];
+
+      // Counter
+      if (currentNumEl) {
+        currentNumEl.textContent = String(index + 1).padStart(2, '0');
+      }
+
+      // Image
+      if (imgEl) {
+        imgEl.src = work.image || '';
+        imgEl.alt = work.title || 'Campaign preview';
+      }
+
+      // Title
+      if (titleEl) {
+        titleEl.textContent = work.title || '';
+      }
+
+      // Category Tag (skip if empty)
+      if (catEl) {
+        if (work.category && work.category.trim() && work.category !== 'undefined') {
+          catEl.textContent = work.category.toUpperCase();
+          catEl.style.display = 'inline-block';
+        } else {
+          catEl.textContent = '';
+          catEl.style.display = 'none';
+        }
+      }
+
+      // Client (skip if empty)
+      if (clientWrap && clientEl) {
+        if (work.client && work.client.trim() && work.client !== 'undefined') {
+          clientEl.textContent = work.client;
+          clientWrap.style.display = 'block';
+        } else {
+          clientEl.textContent = '';
+          clientWrap.style.display = 'none';
+        }
+      }
+
+      // Headline Copy (skip if empty)
+      if (quoteWrap && quoteEl) {
+        if (work.headline_copy && work.headline_copy.trim() && work.headline_copy !== 'undefined') {
+          quoteEl.textContent = `"${work.headline_copy}"`;
+          quoteWrap.style.display = 'block';
+        } else {
+          quoteEl.textContent = '';
+          quoteWrap.style.display = 'none';
+        }
+      }
+
+      // Objective (skip if empty)
+      if (objWrap && objEl) {
+        if (work.objective && work.objective.trim() && work.objective !== 'undefined') {
+          objEl.textContent = work.objective;
+          objWrap.style.display = 'block';
+        } else {
+          objEl.textContent = '';
+          objWrap.style.display = 'none';
+        }
+      }
+    }
+
+    function openLightbox(index: number, trigger: HTMLElement) {
+      triggerElement = trigger;
+      currentIndex = index;
+      renderWork(currentIndex);
+
+      if (!dialog?.open) {
+        dialog?.showModal();
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeLightbox() {
+      if (dialog?.open) {
+        dialog.close();
+      }
+    }
+
+    function showPrev() {
+      currentIndex = (currentIndex - 1 + works.length) % works.length;
+      renderWork(currentIndex);
+    }
+
+    function showNext() {
+      currentIndex = (currentIndex + 1) % works.length;
+      renderWork(currentIndex);
+    }
+
+    // Attach click and keyboard events to work cards
+    const cards = document.querySelectorAll('.work-card');
+    cards.forEach((card, idx) => {
+      const cardEl = card as HTMLElement;
+      cardEl.setAttribute('role', 'button');
+      cardEl.setAttribute('tabindex', '0');
+      cardEl.setAttribute('aria-haspopup', 'dialog');
+
+      cardEl.addEventListener('click', () => {
+        openLightbox(idx, cardEl);
+      });
+
+      cardEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openLightbox(idx, cardEl);
+        }
+      });
+    });
+
+    // Close button
+    closeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeLightbox();
+    });
+
+    // Navigation buttons
+    prevBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showPrev();
+    });
+
+    nextBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showNext();
+    });
+
+    // Handle outside clicks: closes if click is outside the card panel and navigation buttons
+    dialog.addEventListener('click', (e) => {
+      const target = e.target as Node;
+      if (cardPanel?.contains(target) || prevBtn?.contains(target) || nextBtn?.contains(target)) {
+        return;
+      }
+      closeLightbox();
+    });
+
+    // Restore focus and restore body scrolling upon dialog close
+    dialog.addEventListener('close', () => {
+      document.body.style.overflow = '';
+      if (triggerElement && typeof triggerElement.focus === 'function') {
+        triggerElement.focus();
+      }
+    });
+
+    // Keyboard navigation (Arrow keys + Esc)
+    window.addEventListener('keydown', (e) => {
+      if (!dialog.open) return;
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        showPrev();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        showNext();
+      } else if (e.key === 'Escape') {
+        // Native dialog handles escape, but this ensures full cleanup
+        closeLightbox();
+      }
+    });
+  }
+
+  // Support both direct load and Astro view transitions if ever enabled
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWorkLightbox);
+  } else {
+    initWorkLightbox();
+  }
+  document.addEventListener('astro:page-load', initWorkLightbox);
+</script>
+
+<style>
+  .lightbox-dialog {
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: auto;
+    max-width: 96vw;
+    width: 1220px;
+    max-height: 92vh;
+    color: var(--text-primary);
+    overflow: visible;
+  }
+
+  .lightbox-dialog::backdrop {
+    background: rgba(8, 8, 10, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .lightbox-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Main Card */
+  .lightbox-card {
+    position: relative;
+    flex: 1;
+    max-width: 1080px;
+    max-height: 88vh;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.95);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Top Bar */
+  .lightbox-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.75rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+    z-index: 2;
+  }
+
+  .lightbox-counter {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+  }
+
+  .counter-slash {
+    color: var(--border-focus);
+    margin: 0 0.25rem;
+  }
+
+  .lightbox-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .lightbox-close-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-focus);
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+  }
+
+  /* Body */
+  .lightbox-body {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2.25rem;
+    padding: 2rem;
+    overflow-y: auto;
+    max-height: calc(88vh - 65px);
+    align-items: start;
+  }
+
+  /* Media Preview */
+  .lightbox-media-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    overflow: hidden;
+    min-height: 380px;
+  }
+
+  .lightbox-img {
+    max-width: 100%;
+    max-height: 64vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .lightbox-category-tag {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+  }
+
+  /* Info Details */
+  .lightbox-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .lightbox-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .client-value {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .lightbox-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 2.5vw, 2.1rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .lightbox-quote {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding-left: 1rem;
+    border-left: 2px solid var(--border-focus);
+    margin: 0;
+  }
+
+  .objective-text {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  /* Navigation Buttons */
+  .lightbox-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+
+  .lightbox-nav-btn:hover {
+    border-color: var(--border-focus);
+    background: var(--bg-tertiary);
+    transform: scale(1.1);
+  }
+
+  .lightbox-nav-btn:focus-visible,
+  .lightbox-close-btn:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 3px;
+  }
+
+  /* Responsive Rules */
+  @media (max-width: 900px) {
+    .lightbox-body {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem;
+    }
+
+    .lightbox-media-container {
+      min-height: 260px;
+    }
+
+    .lightbox-img {
+      max-height: 45vh;
+    }
+
+    .lightbox-wrapper {
+      padding: 0 0.5rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .lightbox-nav-btn {
+      position: absolute;
+      bottom: -3.5rem;
+      width: 42px;
+      height: 42px;
+      background: var(--bg-secondary);
+      border-color: var(--border-focus);
+    }
+
+    .prev-btn {
+      left: calc(50% - 50px);
+    }
+
+    .next-btn {
+      right: calc(50% - 50px);
+    }
+
+    .lightbox-card {
+      margin-bottom: 4rem;
+    }
+  }
+</style>
