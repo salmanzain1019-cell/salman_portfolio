@@ -1,6 +1,7 @@
 ---
 // src/components/Works.astro
 import { getCollection } from 'astro:content';
+import WorkLightbox from './WorkLightbox.astro';
 
 const allWorks = await getCollection('works');
 const featuredWorks = allWorks
@@ -33,7 +34,7 @@ const imageDimensions: Record<string, { width: number; height: number }> = {
       {featuredWorks.map((work) => {
         const dims = imageDimensions[work.data.image] ?? { width: 1200, height: 800 };
         return (
-          <article class="work-card">
+          <article class="work-card" id={`work-${work.id}`}>
             <!-- Artwork Preview -->
             <div class="card-media">
               <img
@@ -77,6 +78,9 @@ const imageDimensions: Record<string, { width: number; height: number }> = {
         <span class="link-arrow" aria-hidden="true">→</span>
       </a>
     </div>
+
+    <!-- Work Details Lightbox Dialog -->
+    <WorkLightbox works={featuredWorks} />
   </div>
 </section>
 
@@ -173,11 +177,17 @@ const imageDimensions: Record<string, { width: number; height: number }> = {
     display: flex;
     flex-direction: column;
     transition: border-color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
   }
 
   .work-card:hover {
     border-color: var(--border-focus);
     transform: translateY(-2px);
+  }
+
+  .work-card:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 4px;
   }
 
   /* Media */
